@@ -25,6 +25,17 @@ type (
 		Phone     string `json:"phone"`
 	}
 
+	GetReq struct {
+		ID string
+	}
+
+	GetAllReq struct {
+		FirstName string
+		LastName  string
+		Limit     int
+		Page      int
+	}
+
 	UpdateReq struct {
 		FirstName *string `json:"first_name"`
 		LastName  *string `json:"last_name"`
@@ -48,8 +59,8 @@ func MakeEndpoints(s Service, config Config) Endpoints {
 
 	return Endpoints{
 		Create: makeCreateEndpoint(s),
-		// Get:    makeGetEndpoint(s),
-		// GetAll: makeGetAllEndpoint(s, config),
+		Get:    makeGetEndpoint(s),
+		GetAll: makeGetAllEndpoint(s, config),
 		// Update: makeUpdateEndpoint(s),
 		// Delete: makeDeleteEndpoint(s),
 	}
@@ -76,55 +87,47 @@ func makeCreateEndpoint(s Service) Controller {
 	}
 }
 
-/*
 func makeGetEndpoint(s Service) Controller {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		path := mux.Vars(r)
-		id := path["id"]
-		user, err := s.Get(ctx, id)
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(GetReq)
+
+		user, err := s.Get(ctx, req.ID)
 		if err != nil {
-			return nil, errors.New("user doesn't exist")
+			return nil, response.NotFound(err.Error())
 		}
-		return user, nil
+		return response.OK("success", user, nil), nil
 	}
 }
 
-
 func makeGetAllEndpoint(s Service, config Config) Controller {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
 
-		v := r.URL.Query()
+		req := request.(GetAllReq)
 
 		filters := Filters{
-			FirstName: v.Get("first_name"),
-			LastName:  v.Get("last_name"),
+			FirstName: req.FirstName,
+			LastName:  req.LastName,
 		}
-
-		limit, _ := strconv.Atoi(v.Get("limit"))
-		page, _ := strconv.Atoi(v.Get("page"))
 
 		count, err := s.Count(ctx, filters)
 		if err != nil {
-
-			return count, nil
+			return nil, response.InternalServerError(err.Error())
 		}
 
-		meta, err := meta.New(page, limit, count, config.LimPageDef)
+		meta, err := meta.New(req.Page, req.Limit, count, config.LimPageDef)
 		if err != nil {
-			json.NewEncoder(w).Encode(&Response{Status: 500, Err: err.Error()})
-			return
+			return nil, response.InternalServerError(err.Error())
 		}
 
-		users, err := s.GetAll(filters, meta.Offset(), meta.Limit())
+		users, err := s.GetAll(ctx, filters, meta.Offset(), meta.Limit())
 		if err != nil {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(&Response{Status: 400, Err: err.Error()})
-			return
+			return nil, response.InternalServerError(err.Error())
 		}
-		json.NewEncoder(w).Encode(&Response{Status: 200, Data: users, Meta: meta})
+		return response.OK("success", users, meta), nil
 	}
 }
 
+/*
 func makeUpdateEndpoint(s Service) Controller {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Update user")
