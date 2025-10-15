@@ -4,6 +4,12 @@ github.com/DanyJDuque/gocourse_domain v0.0.1 h1:6mFAYYvImVV7ftee6ImJJs7PBiM28p4w
 github.com/DanyJDuque/gocourse_domain v0.0.1/go.mod h1:9bXQOi55tNdo2S/Nn2VoVE1bxMIt8FhPbPkCzcuGkNc=
 github.com/DanyJDuque/gocourse_meta v0.0.1 h1:kI+HMIgh9WIZbDsVUdSp2AdBrTMsx3xBgLz3vjCtccQ=
 github.com/DanyJDuque/gocourse_meta v0.0.1/go.mod h1:BNzSDWipIhZXQOJPxXNKneKx+EJ2AZVB6FV62C8eW2Q=
+github.com/go-kit/kit v0.13.0 h1:OoneCcHKHQ03LfBpoQCUfCluwd2Vt3ohz+kvbJneZAU=
+github.com/go-kit/kit v0.13.0/go.mod h1:phqEHMMUbyrCFCTgH48JueqrM3md2HcAZ8N3XE4FKDg=
+github.com/go-kit/log v0.2.0 h1:7i2K3eKTos3Vc0enKCfnVcgHh2olr/MyfboYq7cAcFw=
+github.com/go-kit/log v0.2.0/go.mod h1:NwTd00d/i8cPZ3xOwwiv2PO5MOcx78fFErGNcVmBjv0=
+github.com/go-logfmt/logfmt v0.5.1 h1:otpy5pqBCBZ1ng9RQ0dPu4PN7ba75Y/aA+UpowDyNVA=
+github.com/go-logfmt/logfmt v0.5.1/go.mod h1:WYhtIu8zTZfxdn5+rREduYbwxfcBr/Vr6KEVveWlfTs=
 github.com/go-sql-driver/mysql v1.8.1 h1:LedoTUt/eveggdHS9qUFC1EFSa8bU2+1pZjSRpvNJ1Y=
 github.com/go-sql-driver/mysql v1.8.1/go.mod h1:wEBSXgmK//2ZFJyE+qWnIsVGmvmEKlqwuVSjsCm7DZg=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=

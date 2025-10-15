@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,13 +10,13 @@ import (
 
 	"github.com/DanyJDuque/gocourse_user/internal/user"
 	"github.com/DanyJDuque/gocourse_user/pkg/bootstrap"
-	"github.com/gorilla/mux"
+	"github.com/DanyJDuque/gocourse_user/pkg/handler"
 	"github.com/joho/godotenv"
 )
 
 func main() {
 
-	router := mux.NewRouter()
+	// router := mux.NewRouter()
 	_ = godotenv.Load()
 	l := bootstrap.InitLogger()
 
@@ -28,29 +29,52 @@ func main() {
 	if pagLimDef == "" {
 		l.Fatal("paginator limit default is required")
 	}
-
+	ctx := context.Background()
 	userRepo := user.NewRepo(l, db)
 	userSrv := user.NewService(l, userRepo)
-	userEnd := user.MakeEndpoints(userSrv, user.Config{LimPageDef: pagLimDef})
+	// userEnd := user.MakeEndpoints(userSrv, user.Config{LimPageDef: pagLimDef})
 
-	router.HandleFunc("/users", userEnd.Create).Methods("POST")
-	router.HandleFunc("/users/{id}", userEnd.Get).Methods("GET")
-	router.HandleFunc("/users", userEnd.GetAll).Methods("GET")
-	router.HandleFunc("/users/{id}", userEnd.Update).Methods("PATCH")
-	router.HandleFunc("/users/{id}", userEnd.Delete).Methods("DELETE")
+	h := handler.NewUserHTTPServer(ctx, user.MakeEndpoints(userSrv, user.Config{LimPageDef: pagLimDef}))
+
+	// router.HandleFunc("/users", userEnd.Create).Methods("POST")
+	// router.HandleFunc("/users/{id}", userEnd.Get).Methods("GET")
+	// router.HandleFunc("/users", userEnd.GetAll).Methods("GET")
+	// router.HandleFunc("/users/{id}", userEnd.Update).Methods("PATCH")
+	// router.HandleFunc("/users/{id}", userEnd.Delete).Methods("DELETE")
 
 	port := os.Getenv("PORT")
 	address := fmt.Sprintf("127.0.0.1:%s", port)
 
 	srv := &http.Server{
-		Handler:      router,
+		Handler:      accessControl(h),
 		Addr:         address,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
 
-	err = srv.ListenAndServe()
+	errCh := make(chan error)
+	go func() {
+		l.Println("listen in ", address)
+		errCh <- srv.ListenAndServe()
+	}()
+
+	err = <-errCh
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func accessControl(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATH, OPTIONS, HEAD, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")
+
+		if r.Method == "OPTIONS" {
+			return
+		}
+		h.ServeHTTP(w, r)
+
+	})
 }
