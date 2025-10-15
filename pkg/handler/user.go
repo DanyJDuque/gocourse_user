@@ -3,8 +3,10 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
+	"github.com/DanyJDuque/go_lib_response/response"
 	"github.com/DanyJDuque/gocourse_user/internal/user"
 	"github.com/gorilla/mux"
 
@@ -16,9 +18,14 @@ func NewUserHTTPServer(ctx context.Context, endpoints user.Endpoints) http.Handl
 
 	r := mux.NewRouter()
 
+	opts := []httptransport.ServerOption{
+		httptransport.ServerErrorEncoder(encodeError),
+	}
+
 	r.Handle("/users", httptransport.NewServer(
 		endpoint.Endpoint(endpoints.Create),
 		decodeCreateUser, encodeResponse,
+		opts...,
 	)).Methods("POST")
 
 	return r
@@ -27,13 +34,21 @@ func NewUserHTTPServer(ctx context.Context, endpoints user.Endpoints) http.Handl
 func decodeCreateUser(_ context.Context, r *http.Request) (interface{}, error) {
 	var req user.CreateReq
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
+		return nil, response.BadRequest(fmt.Sprintf("invalid request format: '%v'", err.Error()))
 	}
 	return req, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}) error {
+	r := resp.(response.Response)
 	w.Header().Set("Contet-Type", "application/json; charset=utf8")
-	w.WriteHeader(200)
-	return json.NewEncoder(w).Encode(resp)
+	w.WriteHeader(r.StatusCode())
+	return json.NewEncoder(w).Encode(r)
+}
+
+func encodeError(_ context.Context, err error, w http.ResponseWriter) {
+	w.Header().Set("Contect-type", "application/json; charset=utf-8")
+	resp := err.(response.Response)
+	w.WriteHeader(resp.StatusCode())
+	_ = json.NewEncoder(w).Encode(resp)
 }

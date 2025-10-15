@@ -1,5 +1,7 @@
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
+github.com/DanyJDuque/go_lib_response v0.0.1 h1:Az6uOnTxlsTXX7UTeL04uVtX2HoorB1i+sgqPxC05yQ=
+github.com/DanyJDuque/go_lib_response v0.0.1/go.mod h1:gdS7eSuIdotNRQ7qOmXD19cJ2/b5Fy3b5q1JW/1ySZ0=
 github.com/DanyJDuque/gocourse_domain v0.0.1 h1:6mFAYYvImVV7ftee6ImJJs7PBiM28p4wB/5xce7wMHU=
 github.com/DanyJDuque/gocourse_domain v0.0.1/go.mod h1:9bXQOi55tNdo2S/Nn2VoVE1bxMIt8FhPbPkCzcuGkNc=
 github.com/DanyJDuque/gocourse_meta v0.0.1 h1:kI+HMIgh9WIZbDsVUdSp2AdBrTMsx3xBgLz3vjCtccQ=
