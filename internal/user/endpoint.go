@@ -77,11 +77,11 @@ func makeCreateEndpoint(s Service) Controller {
 		req := request.(CreateReq)
 
 		if req.FirstName == "" {
-			return nil, response.BadRequest("first name is requiered")
+			return nil, response.BadRequest(ErrFirstNameRequiered.Error())
 		}
 
 		if req.LastName == "" {
-			return nil, response.BadRequest("last name is requiered")
+			return nil, response.BadRequest(ErrLastNameRequiered.Error())
 		}
 
 		user, err := s.Create(ctx, req.FirstName, req.LastName, req.Email, req.Phone)
@@ -98,7 +98,10 @@ func makeGetEndpoint(s Service) Controller {
 
 		user, err := s.Get(ctx, req.ID)
 		if err != nil {
-			return nil, response.NotFound(err.Error())
+			if err == ErrUserNotfound {
+				return nil, response.NotFound(ErrUserNotfound.Error())
+			}
+			return nil, response.InternalServerError(err.Error())
 		}
 		return response.OK("success", user, nil), nil
 	}
@@ -138,14 +141,18 @@ func makeUpdateEndpoint(s Service) Controller {
 		req := request.(UpdateReq)
 
 		if req.FirstName != nil && *req.FirstName == "" {
-			return nil, response.BadRequest("first name is requiered")
+			return nil, response.BadRequest(ErrFirstNameRequiered.Error())
 		}
 
 		if req.LastName != nil && *req.LastName == "" {
-			return nil, response.BadRequest("last name is requiered")
+			return nil, response.BadRequest(ErrLastNameRequiered.Error())
 		}
 
-		if err := s.Update(ctx, req.ID, req.FirstName, req.LastName, req.Email, req.Phone); err != nil {
+		err := s.Update(ctx, req.ID, req.FirstName, req.LastName, req.Email, req.Phone)
+		if err != nil {
+			if err == ErrUserNotfound {
+				return nil, response.NotFound(ErrUserNotfound.Error())
+			}
 			return nil, response.InternalServerError(err.Error())
 		}
 		return response.OK("success", nil, nil), nil
@@ -157,7 +164,12 @@ func makeDeleteEndpoint(s Service) Controller {
 
 		req := request.(DeleteReq)
 
-		if err := s.Delete(ctx, req.ID); err != nil {
+		err := s.Delete(ctx, req.ID)
+
+		if err != nil {
+			if err == ErrUserNotfound {
+				return nil, response.NotFound(ErrUserNotfound.Error())
+			}
 			return nil, response.InternalServerError((err.Error()))
 		}
 		return response.OK("success", nil, nil), nil
