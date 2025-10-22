@@ -35,6 +35,7 @@ func NewService(log *log.Logger, repo Repository) Service {
 }
 
 func (s service) Create(ctx context.Context, firstName, lastName, email, phone string) (*domain.User, error) {
+	s.log.Println("Create user service")
 	user := domain.User{
 		FirstName: firstName,
 		LastName:  lastName,

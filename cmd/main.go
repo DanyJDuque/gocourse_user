@@ -30,6 +30,7 @@ func main() {
 		l.Fatal("paginator limit default is required")
 	}
 	ctx := context.Background()
+
 	userRepo := user.NewRepo(l, db)
 	userSrv := user.NewService(l, userRepo)
 	// userEnd := user.MakeEndpoints(userSrv, user.Config{LimPageDef: pagLimDef})
@@ -43,10 +44,13 @@ func main() {
 	// router.HandleFunc("/users/{id}", userEnd.Delete).Methods("DELETE")
 
 	port := os.Getenv("PORT")
+
 	address := fmt.Sprintf("127.0.0.1:%s", port)
 
 	srv := &http.Server{
-		Handler:      accessControl(h),
+		// Handler: router,
+		Handler: accessControl(h),
+		// Addr:         "127.0.0.1:8081",
 		Addr:         address,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
@@ -66,7 +70,6 @@ func main() {
 
 func accessControl(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATH, OPTIONS, HEAD, DELETE")
 		w.Header().Set("Access-Control-Allow-Headers", "Accept,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Requested-With")

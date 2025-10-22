@@ -12,8 +12,8 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, user *domain.User) error
-	GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.User, error)
 	Get(ctx context.Context, id string) (*domain.User, error)
+	GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.User, error)
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, id string, firstName *string, lastName *string, email *string, phone *string) error
 	Count(ctx context.Context, filters Filters) (int, error)
@@ -59,31 +59,22 @@ func (repo *repo) Get(ctx context.Context, id string) (*domain.User, error) {
 
 	if err := repo.db.WithContext(ctx).First(&user).Error; err != nil {
 		repo.log.Println(err)
-
-		if err == gorm.ErrRecordNotFound {
-			return nil, ErrNotFound{id}
-		}
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (r *repo) Delete(ctx context.Context, id string) error {
+func (repo *repo) Delete(ctx context.Context, id string) error {
 	user := domain.User{ID: id}
-	result := r.db.WithContext(ctx).Delete(&user)
 
-	if result.Error != nil {
-		r.log.Println(result.Error)
-		return result.Error
-	}
-	if result.RowsAffected == 0 {
-		r.log.Printf("user %s doesn't exist", id)
-		return ErrNotFound{id}
+	if err := repo.db.WithContext(ctx).Delete(&user).Error; err != nil {
+		repo.log.Println(err)
+		return err
 	}
 	return nil
 }
 
-func (r *repo) Update(ctx context.Context, id string, firstName *string, lastName *string, email *string, phone *string) error {
+func (repo *repo) Update(ctx context.Context, id string, firstName *string, lastName *string, email *string, phone *string) error {
 	values := make(map[string]interface{})
 
 	if firstName != nil {
@@ -100,15 +91,11 @@ func (r *repo) Update(ctx context.Context, id string, firstName *string, lastNam
 		values["phone"] = *phone
 	}
 
-	result := r.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", id).Updates(values)
-	if result.Error != nil {
-		r.log.Println(result.Error)
-		return result.Error
+	if err := repo.db.WithContext(ctx).Model(&domain.User{}).Where("id = ?", id).Updates(values).Error; err != nil {
+		repo.log.Println(err)
+		return err
 	}
-	if result.RowsAffected == 0 {
-		r.log.Printf("user %s doesn't exist", id)
-		return ErrNotFound{id}
-	}
+
 	return nil
 }
 

@@ -1,6 +1,8 @@
 module github.com/DanyJDuque/gocourse_user
 
-go 1.23.0
+go 1.24.0
+
+toolchain go1.24.9
 
 require (
 	github.com/DanyJDuque/go_lib_response v0.0.1
@@ -15,11 +17,11 @@ require (
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/go-kit/log v0.2.0 // indirect
-	github.com/go-logfmt/logfmt v0.5.1 // indirect
-	github.com/go-sql-driver/mysql v1.8.1 // indirect
+	github.com/go-kit/log v0.2.1 // indirect
+	github.com/go-logfmt/logfmt v0.6.1 // indirect
+	github.com/go-sql-driver/mysql v1.9.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	golang.org/x/text v0.20.0 // indirect
+	golang.org/x/text v0.30.0 // indirect
 )
