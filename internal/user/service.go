@@ -14,7 +14,7 @@ type (
 	}
 
 	Service interface {
-		Create(ctx context.Context, firstName, LastName, email, phone string) (*domain.User, error)
+		Create(ctx context.Context, firstName, lastName, email, phone string) (*domain.User, error)
 		Get(ctx context.Context, id string) (*domain.User, error)
 		GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.User, error)
 		Delete(ctx context.Context, id string) error
@@ -35,7 +35,6 @@ func NewService(log *log.Logger, repo Repository) Service {
 }
 
 func (s service) Create(ctx context.Context, firstName, lastName, email, phone string) (*domain.User, error) {
-	s.log.Println("Create user service")
 	user := domain.User{
 		FirstName: firstName,
 		LastName:  lastName,

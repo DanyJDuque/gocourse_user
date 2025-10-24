@@ -79,34 +79,19 @@ func makeCreateEndpoint(s Service) Controller {
 		req := request.(CreateReq)
 
 		if req.FirstName == "" {
-			return nil, response.BadRequest(ErrFirstNameRequiered.Error())
+			return nil, response.BadRequest(ErrFirstNameRequired.Error())
 		}
 
 		if req.LastName == "" {
-			return nil, response.BadRequest(ErrLastNameRequiered.Error())
+			return nil, response.BadRequest(ErrLastNameRequired.Error())
 		}
+
 		user, err := s.Create(ctx, req.FirstName, req.LastName, req.Email, req.Phone)
 		if err != nil {
 			return nil, response.InternalServerError(err.Error())
 		}
 
 		return response.Created("success", user, nil), nil
-	}
-}
-
-func makeGetEndpoint(s Service) Controller {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-
-		req := request.(GetReq)
-
-		user, err := s.Get(ctx, req.ID)
-		if err != nil {
-			if errors.As(err, &ErrNotFound{}) {
-				return nil, response.NotFound(err.Error())
-			}
-			return nil, response.InternalServerError(err.Error())
-		}
-		return response.OK("success", user, nil), nil
 	}
 }
 
@@ -119,9 +104,6 @@ func makeGetAllEndpoint(s Service, config Config) Controller {
 			FirstName: req.FirstName,
 			LastName:  req.LastName,
 		}
-
-		// limit, _ := strconv.Atoi(v.Get("limit"))
-		// page, _ := strconv.Atoi(v.Get("page"))
 
 		count, err := s.Count(ctx, filters)
 		if err != nil {
@@ -137,21 +119,39 @@ func makeGetAllEndpoint(s Service, config Config) Controller {
 		if err != nil {
 			return nil, response.InternalServerError(err.Error())
 		}
+
 		return response.OK("success", users, meta), nil
+	}
+}
+func makeGetEndpoint(s Service) Controller {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+
+		req := request.(GetReq)
+
+		user, err := s.Get(ctx, req.ID)
+		if err != nil {
+
+			if errors.As(err, &ErrNotFound{}) {
+				return nil, response.NotFound(err.Error())
+			}
+
+			return nil, response.InternalServerError(err.Error())
+		}
+
+		return response.OK("success", user, nil), nil
 	}
 }
 
 func makeUpdateEndpoint(s Service) Controller {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-
 		req := request.(UpdateReq)
 
 		if req.FirstName != nil && *req.FirstName == "" {
-			return nil, response.BadRequest(ErrFirstNameRequiered.Error())
+			return nil, response.BadRequest(ErrFirstNameRequired.Error())
 		}
 
 		if req.LastName != nil && *req.LastName == "" {
-			return nil, response.BadRequest(ErrLastNameRequiered.Error())
+			return nil, response.BadRequest(ErrLastNameRequired.Error())
 		}
 
 		err := s.Update(ctx, req.ID, req.FirstName, req.LastName, req.Email, req.Phone)
@@ -176,11 +176,13 @@ func makeDeleteEndpoint(s Service) Controller {
 		err := s.Delete(ctx, req.ID)
 
 		if err != nil {
+
 			if errors.As(err, &ErrNotFound{}) {
 				return nil, response.NotFound(err.Error())
 			}
 			return nil, response.InternalServerError(err.Error())
 		}
+
 		return response.OK("success", nil, nil), nil
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func DBConection() (*gorm.DB, error) {
+func DBConnection() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("%s:%s@(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
 		os.Getenv("DATABASE_USER"),
 		os.Getenv("DATABASE_PASSWORD"),

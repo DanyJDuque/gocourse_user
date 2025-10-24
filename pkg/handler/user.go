@@ -114,13 +114,13 @@ func decodeDeleteUser(_ context.Context, r *http.Request) (interface{}, error) {
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, resp interface{}) error {
 	r := resp.(response.Response)
-	w.Header().Set("Contet-Type", "application/json; charset=utf8")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(r.StatusCode())
 	return json.NewEncoder(w).Encode(r)
 }
 
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
-	w.Header().Set("Contect-type", "application/json; charset=utf-8")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	resp := err.(response.Response)
 	w.WriteHeader(resp.StatusCode())
 	_ = json.NewEncoder(w).Encode(resp)

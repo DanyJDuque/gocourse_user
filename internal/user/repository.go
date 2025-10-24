@@ -12,8 +12,8 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, user *domain.User) error
-	Get(ctx context.Context, id string) (*domain.User, error)
 	GetAll(ctx context.Context, filters Filters, offset, limit int) ([]domain.User, error)
+	Get(ctx context.Context, id string) (*domain.User, error)
 	Delete(ctx context.Context, id string) error
 	Update(ctx context.Context, id string, firstName *string, lastName *string, email *string, phone *string) error
 	Count(ctx context.Context, filters Filters) (int, error)
@@ -59,7 +59,6 @@ func (repo *repo) Get(ctx context.Context, id string) (*domain.User, error) {
 
 	if err := repo.db.WithContext(ctx).First(&user).Error; err != nil {
 		repo.log.Println(err)
-		// return nil, err
 		if err == gorm.ErrRecordNotFound {
 			return nil, ErrNotFound{id}
 		}
@@ -79,8 +78,7 @@ func (repo *repo) Delete(ctx context.Context, id string) error {
 	}
 
 	if result.RowsAffected == 0 {
-		repo.log.Printf("user %s doesn't extist", id)
-		// return fmt.Errorf("user %s doesn't extist", id)
+		repo.log.Printf("user %s doesn't exists", id)
 		return ErrNotFound{id}
 	}
 	return nil
@@ -111,8 +109,7 @@ func (repo *repo) Update(ctx context.Context, id string, firstName *string, last
 	}
 
 	if result.RowsAffected == 0 {
-		repo.log.Printf("user %s doesn't extist", id)
-		// return fmt.Errorf("user %s doesn't extist", id)
+		repo.log.Printf("user %s doesn't exists", id)
 		return ErrNotFound{id}
 	}
 	return nil
@@ -124,7 +121,7 @@ func (repo *repo) Count(ctx context.Context, filters Filters) (int, error) {
 	tx = applyFilters(tx, filters)
 	if err := tx.Count(&count).Error; err != nil {
 		repo.log.Println(err)
-		return 0, nil
+		return 0, err
 	}
 	return int(count), nil
 }

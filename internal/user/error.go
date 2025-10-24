@@ -5,10 +5,8 @@ import (
 	"fmt"
 )
 
-var ErrFirstNameRequiered = errors.New("first name is requiered")
-var ErrLastNameRequiered = errors.New("last name is requiered")
-
-// var ErrUserNotFound = errors.New("user not found")
+var ErrFirstNameRequired = errors.New("first name is required")
+var ErrLastNameRequired = errors.New("last name is required")
 
 type ErrNotFound struct {
 	UserID string
